@@ -1,0 +1,55 @@
+---
+title: "Lab 1- Spatial Statistics"
+author: "HARISH SAIFI (GL6134/23DSMSA112)"
+date: "2024-08-30"
+output: 
+  pdf_document: default
+  html_document: default
+---
+\vspace{-0.5cm}
+# 1. Installing and Loading the imager Package:
+```{r message=FALSE}
+#install.packages("imager")
+library(imager)
+```
+# 2.Plotting the boats Image:
+
+The plot(boats) function displays the boats image. The boats variable is a sample image provided by the imager package. Simply typing boats will show information about the image object
+```{r}
+plot(boats);boats
+```
+
+# 3. Converting the Image to Grayscale:
+
+The grayscale(boats) function converts the boats image to grayscale. This process removes the color information, leaving only shades of gray, which simplifies the image
+```{r}
+grayscale(boats)
+```
+# 4. Performing Image Transformations:
+
+Mathematical operations are applied to the boats image:
+z1 involves taking the logarithm of the image and adding three times the square root of the image.
+z2 adds three times the square root of the image to itself.
+These operations create transformed versions of the image, which are then displayed.
+
+```{r}
+z1=log(boats)+3*sqrt(boats)
+z2=boats+3*sqrt(boats)
+z1;z2
+```
+
+The layout(t(1:3)) function configures the plotting area to show three plots in a single row.
+```{r}
+par(mfrow=c(1,2));plot(z1);plot(z2)
+
+layout(t(1:3));plot(boats);plot(boats/2);plot(boats,reshape=FALSE)
+```
+
+# 6. Creating a Histogram of Grayscale Values:
+
+The grayscale version of the boats image is used to create a histogram that displays the distribution of luminescence (brightness) values in the image. The main parameter adds a title to the histogram.
+
+```{r}
+grayscale(boats)%>%hist(main="Luminance value in boats pictures")
+```
+\vspace{-0.5cm}

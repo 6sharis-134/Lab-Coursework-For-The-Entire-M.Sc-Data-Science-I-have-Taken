@@ -1,0 +1,83 @@
+---
+title: "Lab 4- Spatial Statistcs"
+author: "Harish Saifi"
+date: "2024-09-07"
+output:
+  pdf_document: default
+  html_document: default
+---
+## 1. Install the Necessory Packages
+```{r, message=FALSE, warning=FALSE}
+options(repos = c(CRAN = "https://cran.r-project.org"))
+install.packages(c("jpeg","factoextra","gridExtra","magick",
+                   "imgpalr","imager"))
+```
+## 2. Require and Load all the Necessory Packages
+```{r ,message=FALSE, warning=FALSE}
+library(jpeg);library(factoextra);library(gridExtra);library(ggplot2);
+library(magick);library(imgpalr);library(imager)
+```
+
+## 3. Setup Plotting Layout and Display Image
+This sets up a 1x3 plotting grid.
+It plots the boats dataset and captures the plot as an image object photo.
+The rasterImage is used to display the saved image in a blank plot.
+
+```{r}
+par(mfrow=c(1,3))
+plot(boats)
+photo=plot(boats)
+plot(1,type="n")
+rasterImage(photo,0.6,0.6,1.4,1.4)
+```
+## 4. Convert Image to Grayscale
+This code converts the RGB image to grayscale by summing the three color 
+channels and normalizing the result.
+The grayscale image is displayed using rasterImage.
+```{r}
+photo.sum=photo[,,1]+photo[,,2]+photo[,,3]
+photo.bw=photo.sum/max(photo.sum)
+plot(1, type="n")
+rasterImage(photo.bw,0.6,0.6,1.4,1.4)
+```
+## 5. Extract Color Channels
+Here, the individual matrices for the Red, Green, and Blue channels are 
+extracted from the image.
+```{r}
+r=photo[,,1] # Individual matrix for R Color component
+g=photo[,,2] # Individual matrix for G Color component
+b=photo[,,3] # Individual matrix for B Color component
+```
+## 6. Perform PCA on Color Channels
+PCA is performed separately on the Red, Green, and Blue color components of the
+image to reduce dimensionality
+```{r}
+r.pca=prcomp(r,center=FALSE,scale.=FALSE) # PCA for Red color 
+
+g.pca=prcomp(g,center=FALSE,scale.=FALSE) # PCA for Green color 
+
+b.pca=prcomp(b,center=FALSE,scale.=FALSE) # PCA for Blue color 
+```
+## 7. Visualize Eigenvalues for Principal COmponents
+Visualizes the variance explained by the first 5 principal components for the
+Red, Green, and Blue channels.
+The plots are arranged side by side.
+```{r}
+f1=fviz_eig(r.pca,main="Red",barfill="red",ncp=5,addlabels=TRUE)
+
+f2=fviz_eig(g.pca,main="Red",barfill="green",ncp=5,addlabels=TRUE)
+
+f3=fviz_eig(b.pca,main="Red",barfill="blue",ncp=5,addlabels=TRUE)
+
+grid.arrange(f1, f2, f3, ncol=3)
+```
+## 8. Generate Sequence for Number of Principal Components
+This generates a sequence of values that can be used to determine the number of
+principal components, based on the image dimensions.
+```{r}
+# Lets check the no of PC
+vec=seq.int(3, round(nrow(photo)),length.out=9)
+round(vec,0)
+```
+
+

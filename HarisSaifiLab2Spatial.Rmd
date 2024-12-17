@@ -1,0 +1,99 @@
+---
+title: "Lab 2- Spatial Statistics"
+author: "Harish Saifi"
+date: "2024-08-24"
+output:
+  pdf_document: default
+  html_document: default
+---
+Objective : 
+(i) Generate a set of 10 points without attributes on the unit square [0, 1] × [0, 1] from uniform distribution and convert them into spatial points, make a scattered plot of them in R .
+
+(ii)  Also, create a Spatial Points Data frame object by building it from a Spatial Points object and a data.frame containing the attributes, and plot these spatial points in coordinate system.
+
+In this lab we are going to transform our simple coordinates data into spatial data by usig the `sp` library.
+
+```{r}
+#install.packages("sp")
+library(sp)
+```
+# 1. Generating Random Coordinates:
+
+xc and yc create vectors of 10 random numbers each, rounded to two decimal places. These vectors represent x and y coordinates. xy combines these vectors into a matrix of coordinate pairs
+```{r}
+xc=round(runif(10),2)
+yc=round(runif(10),2)
+xy=cbind(xc,yc)
+```
+# 2. Creating and Plotting Spatial Points:
+
+xy.sp converts the xy matrix into a SpatialPoints object, which is a spatial data type in R. plot(xy.sp, pch=7) plots these spatial points using a specific symbol (pch=7).
+```{r}
+xy.sp=SpatialPoints(xy)
+xy.sp[1:3,]
+plot(xy.sp,pch=7)
+```
+# 3. Creating and Plotting Spatial Points:
+
+xy.sp converts the xy matrix into a SpatialPoints object, which is a spatial data type in R. plot(xy.sp, pch=7) plots these spatial points using a specific symbol (pch=7).
+```{r}
+xy.cc=coordinates(xy.sp)
+class(xy.cc)
+```
+# 4. Extracting Coordinates and Checking Class:
+
+xy.cc extracts the coordinates from the SpatialPoints object. class(xy.cc) checks the class of the extracted coordinates.
+```{r}
+bbox(xy.sp)
+dimensions(xy.sp)
+xy.sp[1:2]
+xy.df=as.data.frame(xy.sp)
+class(xy.df)
+dim(xy.df)
+summary(xy.sp)
+```
+# 5. Getting Bounding Box, Dimensions, and Summary:
+
+bbox(xy.sp) retrieves the bounding box of the spatial points, defining the area covering all points.
+## 2 Points with attributes
+
+```{r}
+df=data.frame(z1=round(5+rnorm(10),2),z2=20:29)
+df[1:3,]
+xy.sp.df=SpatialPointsDataFrame(xy.sp,df)
+xy.sp.df[1:3,]
+summary(xy.sp.df)
+dimensions(xy.sp.df)
+xy.sp.df[1:2,]
+xy.sp.df[1][1:3,]
+xy.sp.df[1:2,"z2"]
+
+
+xy.df=as.data.frame(xy.sp.df)
+xy.df[1:3,]
+xy.cc=coordinates(xy.sp.df)
+class(xy.cc)
+dim(xy.cc)
+df1=data.frame(xy,df)
+coordinates(df1)=c("xc","yc")
+df1[1:3,]
+df2=data.frame(xy,df)
+coordinates(df2)=~xc+yc
+df2[1:3,]
+as.data.frame(df2)[1:2,]
+coordinates(df2)[1:2,]
+df2[["Z2"]]
+df2[["Z2"]][10]=20
+df2[["z2"]]=1:10
+summary(df2)
+```
+# 6. Visualizing Data with Bubble and Spplot:
+
+bubble(df2, "z1", key.space="bottom") creates a bubble plot of the df2 data, using z1 as the variable for bubble sizes. spplot(df2, "z1", key.space="bottom") creates a spatial plot of df2, also using z1 for visualization, with a legend placed at the bottom.
+```{r}
+bubble(df2,"z1",key.space="left")
+spplot(df2,"z1",key.space="right")
+
+```
+
+

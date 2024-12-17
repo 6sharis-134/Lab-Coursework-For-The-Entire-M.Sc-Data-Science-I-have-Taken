@@ -1,0 +1,77 @@
+---
+title: "Lab 3- Spatial Statistics"
+author: "Harish Saifi"
+date: "2024-08-31"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Objective
+
+In this lab we are going to use the `maptools` `maps` and `MAP` libraries to plot the world map using latitude and longitude values.
+
+# 1. Loading Necessary Libraries
+```{r message=FALSE}
+library(MAP)
+library(maps)
+library(maptools)
+library(sf)
+#library(rgdal)
+```
+# 2. Loading and Pruning the World Map
+
+wrld=map(): Loads a basic world map, setting the longitudinal (xlim) and latitudinal (ylim) boundaries.
+
+interior=FALSE removes internal borders of countries to keep only outer country boundaries.
+plot=FALSE ensures the map is not plotted yet.
+
+pruneMap(): This function is used to limit the map to a specified longitude (xlim), trimming the map data to the required extent.
+```{r}
+wrld=map("world",interior=FALSE, xlim=c(-179,179),ylim=c(-89,89),plot=FALSE)
+wrld_p=pruneMap(wrld,xlim=c(-179,179))
+```
+# 3. Defining Projections
+
+llCRS: This defines the coordinate reference system (CRS) using the WGS84 ellipsoid and longitude-latitude (longlat) projection.
+
+map2SpatialLines(): Converts the pruned world map (wrld_p) into spatial lines, using the WGS84 CRS (llCRS).
+
+prj_new: Defines a new CRS with a Mollweide projection (moll), which is often used for global maps as it preserves area but distorts shape and angle.
+```{r}
+llCRS=CRS("+proj=longlat +ellps=WGS84")
+wrld_sp=map2SpatialLines(wrld_p,proj4string=llCRS)
+prj_new=CRS("+proj=moll")
+```
+# 4. Transforming the Projection and Creating Grids
+
+spTransform(): Transforms the spatial data (wrld_sp) from the WGS84 projection to the new Mollweide projection (prj_new).
+
+gridlines(): Creates a grid of longitudes (easts) and latitudes (norths), adding visual lines for better map interpretation.
+
+ndiscr=100 sets the resolution for the gridline.
+
+wrld_rd_proj and wrld_grd_proj: The longitude-latitude gridlines (wrld_grd) are transformed to the Mollweide projection.
+```{r}
+wrld_proj=spTransform(wrld_sp,prj_new)
+wrld_grd=gridlines(wrld_sp,easts=c(-179,seq(-150,150,150),179.5),
+                   norths=seq(-75,75,15),ndiscr=100)
+wrld_rd_proj=spTransform(wrld_grd,prj_new)
+wrld_grd_proj=spTransform(wrld_grd,prj_new)
+```
+# 5. Annotating and Plotting the Map
+gridat(): Adds labels for specific gridlines (longitude and latitude), in this case at easts=0 (the Prime Meridian) and norths every 15 degrees from -75 to 75 latitude. offset=0.3 adjusts the position of the labels.
+
+plot(): Plots the transformed world map (wrld_proj) in grey.
+add=TRUE: The second plot adds the gridlines (wrld_grd_proj) on top of the base map with dashed lines (lty=3).
+
+text(): Adds the labels for the gridlines at the appropriate positions (coordinates(at_proj)), and uses a smaller font size (cex=0.6).
+```{r}
+at_sp=gridat(wrld_sp,easts=0,norths=seq(-75,75,15),offset=0.3)
+at_proj=spTransform(at_sp,prj_new)
+
+plot(wrld_proj,col="grey60")
+plot(wrld_grd_proj,add=TRUE,lty=3,col="grey70")
+text(coordinates(at_proj),pos=at_proj$pos,offset=at_proj$offset,
+     labels=parse(text=as.character(at_proj$labels)),cex=0.6)
+```
+
